@@ -1,0 +1,15 @@
+### Health
+{"ok": true, "version": "1.0.0", "scheduler": true, "interval_s": 900, "next_run_at": 1795028401.5735238}
+### 1. Flaky Stripe API (fails twice) -> sync still succeeds thanks to retries
+{"started": [{"source": "stripe", "run_id": 6}], "skipped_already_running": []}
+[{"id": 6, "source": "stripe", "trigger": "manual", "status": "success", "attempts": 3, "records": 1, "error": null, "retry_of": null, "started_at": "2026-11-18T18:45:39.443Z", "finished_at": "2026-11-18T18:45:40.164Z"}]
+### 2. Help desk API down -> run marked failed, cursor not advanced
+{"started": [{"source": "helpdesk", "run_id": 7}], "skipped_already_running": []}
+failed helpdesk HTTP 503 (after 3 attempts)
+### 3. API recovers -> retry failed run #7 (what the Retry button calls)
+{"run_id": 8, "retry_of": 7}
+[{"id": 8, "source": "helpdesk", "trigger": "retry", "status": "success", "attempts": 1, "records": 1, "error": null, "retry_of": 7, "started_at": "2026-11-18T18:45:41.071Z", "finished_at": "2026-11-18T18:45:41.075Z"}]
+### 4. KPIs
+{'revenue_30d_cents': 1237100, 'payments_30d': 125, 'failed_payments_30d': 10, 'failed_amount_30d_cents': 143200, 'refunds_30d': 5, 'open_tickets': 16, 'pending_tickets': 11, 'urgent_tickets': 6, 'total_tickets': 48}
+### 5. At-risk customers
+[{"email": "owner@casablanca-coffee.ma", "failed_payments": 2, "open_tickets": 3, "has_urgent": 1}, {"email": "ana@brightcart.io", "failed_payments": 1, "open_tickets": 3, "has_urgent": 1}, {"email": "it@fjord-design.no", "failed_payments": 1, "open_tickets": 3, "has_urgent": 1}, {"email": "mia@lumen-legal.de", "failed_payments": 2, "open_tickets": 5, "has_urgent": 0}, {"email": "hello@sunrise-yog
