@@ -1,0 +1,28 @@
+services:
+  mock-apis:          # remove when pointing at real Stripe / help desk
+    build: ./backend
+    command: uvicorn mock_apis.server:app --host 0.0.0.0 --port 9100
+    ports: ["9100:9100"]
+
+  backend:
+    build: ./backend
+    env_file: [.env]
+    environment:
+      - DATABASE_PATH=/data/ops.db
+      - STRIPE_API_BASE=${STRIPE_API_BASE_DOCKER:-http://mock-apis:9100/stripe}
+      - HELPDESK_API_BASE=${HELPDESK_API_BASE_DOCKER:-http://mock-apis:9100/helpdesk}
+    volumes: ["ops_data:/data"]
+    ports: ["8000:8000"]
+    depends_on: [mock-apis]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args: { BACKEND_URL: "http://backend:8000" }
+    ports: ["3000:3000"]
+    depends_on: [backend]
+    restart: unless-stopped
+
+volumes:
+  ops_data:
